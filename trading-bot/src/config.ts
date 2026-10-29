@@ -16,10 +16,12 @@ function boolEnv(name: string, fallback: boolean): boolean {
 
 export interface BotConfig {
   teamUsername: string;
+  venuePortalUrl: string;
   kafkaBrokers: string[];
   botApiBase: string;
   botAccessToken: string;
   tradingEnabled: boolean;
+  acknowledgePreflight: boolean;
   enableShorts: boolean;
   fastSmaPeriod: number;
   slowSmaPeriod: number;
@@ -39,10 +41,12 @@ export interface BotConfig {
 export function loadConfig(): BotConfig {
   const config: BotConfig = {
     teamUsername: process.env.TEAM_USERNAME?.trim() ?? "",
+    venuePortalUrl: process.env.VENUE_PORTAL_URL?.trim() || "http://192.168.65.157:3003",
     kafkaBrokers: (process.env.KAFKA_BROKERS ?? "").split(",").map((v) => v.trim()).filter(Boolean),
     botApiBase: process.env.BOT_API_BASE?.trim() ?? "",
     botAccessToken: process.env.BOT_ACCESS_TOKEN ?? "",
-    tradingEnabled: boolEnv("TRADING_ENABLED", false),
+    tradingEnabled: false,
+    acknowledgePreflight: boolEnv("ACKNOWLEDGE_PREFLIGHT", false),
     enableShorts: boolEnv("ENABLE_SHORTS", false),
     fastSmaPeriod: numberEnv("FAST_SMA_PERIOD", 5),
     slowSmaPeriod: numberEnv("SLOW_SMA_PERIOD", 20),
@@ -90,6 +94,8 @@ function validateConfig(config: BotConfig): void {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY is required when SUPABASE_URL is configured");
   if (!config.supabaseUrl && config.supabaseServiceRoleKey)
     throw new Error("SUPABASE_URL is required when SUPABASE_SERVICE_ROLE_KEY is configured");
+  if (config.acknowledgePreflight)
+    throw new Error("Pre-flight acknowledgments remain disabled until the venue acknowledgment schema is verified.");
 }
 
 export function missingVenueSettings(config: BotConfig): string[] {

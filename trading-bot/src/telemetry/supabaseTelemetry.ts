@@ -1,7 +1,7 @@
 import type { BotConfig } from "../config.js";
 import type { Decision, OrderAction, PortfolioSnapshot } from "../types.js";
 
-type TableName = "bot_telemetry" | "trade_decisions" | "order_audit" | "portfolio_snapshots";
+type TableName = "bot_runs" | "bot_telemetry" | "trade_decisions" | "order_audit" | "portfolio_snapshots";
 type QueuedRow = { table: TableName; row: Record<string, unknown> };
 
 export interface TelemetryStatus {
@@ -67,6 +67,13 @@ export class SupabaseTelemetry {
 
   recordStatus(status: TelemetryStatus): void {
     this.enqueue("bot_telemetry", { run_id: this.runId, ...status });
+  }
+
+  recordRunState(
+    status: "waiting" | "connecting" | "ready" | "running" | "paused" | "stopped" | "error",
+    stage: string,
+  ): void {
+    this.enqueue("bot_runs", { status, stage });
   }
 
   recordDecision(decision: Decision, eventAt: string, latencyMs: number): void {
@@ -167,6 +174,20 @@ export class SupabaseTelemetry {
       tables.set(item.table, rows);
     }
     for (const [table, rows] of tables) {
+      if (table === "bot_runs") {
+        for (const row of rows) {
+          try {
+            await this.request(`bot_runs?id=eq.${encodeURIComponent(this.runId)}`, {
+              method: "PATCH",
+              body: JSON.stringify(row),
+            });
+          } catch (error) {
+            const message = error instanceof Error ? error.message : "unknown telemetry error";
+            console.error(`Supabase telemetry write failed for ${table}: ${message}`);
+          }
+        }
+        continue;
+      }
       try {
         await this.request(table, { method: "POST", body: JSON.stringify(rows) });
       } catch (error) {
@@ -179,6 +200,7 @@ export class SupabaseTelemetry {
   private async request(path: string, init: RequestInit): Promise<unknown> {
     const response = await this.fetchImpl(new URL(path, this.restUrl), {
       ...init,
+      signal: AbortSignal.timeout(3000),
       headers: {
         apikey: this.key,
         Authorization: `Bearer ${this.key}`,

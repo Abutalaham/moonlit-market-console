@@ -58,8 +58,10 @@ describe("indicators and deterministic strategy", () => {
 
 function testConfig() {
   return {
-    teamUsername: "", kafkaBrokers: [], botApiBase: "", botAccessToken: "",
-    tradingEnabled: false, enableShorts: false, fastSmaPeriod: 5, slowSmaPeriod: 20,
+    teamUsername: "", venuePortalUrl: "http://127.0.0.1:3003",
+    kafkaBrokers: [], botApiBase: "", botAccessToken: "",
+    tradingEnabled: false, acknowledgePreflight: false, enableShorts: false,
+    fastSmaPeriod: 5, slowSmaPeriod: 20,
     cashReservePct: 25, maxPositionPct: 10, maxPortfolioExposurePct: 60,
     maxOpenPositions: 6, maxOrderQty: 1_000_000, stopLossPct: 3, requestsPerMinuteLimit: 90,
     stagePollIntervalMs: 2500, portfolioMaxAgeMs: 10000,
@@ -98,8 +100,9 @@ describe("risk management and rate limiting", () => {
   });
   it("loads the default dry-run configuration without credentials", () => {
     const previous = process.env.TRADING_ENABLED;
-    delete process.env.TRADING_ENABLED;
+    process.env.TRADING_ENABLED = "true";
     expect(loadConfig().tradingEnabled).toBe(false);
     if (previous !== undefined) process.env.TRADING_ENABLED = previous;
+    else delete process.env.TRADING_ENABLED;
   });
 });

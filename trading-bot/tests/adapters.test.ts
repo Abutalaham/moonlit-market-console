@@ -8,8 +8,10 @@ import { RateLimiter } from "../src/utils/rateLimiter.js";
 import type { PortfolioSnapshot } from "../src/types.js";
 
 const config = (overrides: Partial<BotConfig> = {}): BotConfig => ({
-  teamUsername: "test-team", kafkaBrokers: [], botApiBase: "", botAccessToken: "",
-  tradingEnabled: false, enableShorts: false, fastSmaPeriod: 5, slowSmaPeriod: 20,
+  teamUsername: "test-team", venuePortalUrl: "http://127.0.0.1:3003",
+  kafkaBrokers: [], botApiBase: "", botAccessToken: "",
+  tradingEnabled: false, acknowledgePreflight: false, enableShorts: false,
+  fastSmaPeriod: 5, slowSmaPeriod: 20,
   cashReservePct: 25, maxPositionPct: 10, maxPortfolioExposurePct: 60,
   maxOpenPositions: 6, maxOrderQty: 1_000_000, stopLossPct: 3,
   requestsPerMinuteLimit: 90, stagePollIntervalMs: 2500, portfolioMaxAgeMs: 10_000,
@@ -94,25 +96,14 @@ describe("external adapters remain mockable and bounded", () => {
     expect(mockedFetch.mock.calls[0]?.[0]?.toString()).toBe("http://127.0.0.1:3002/api/v1/stage");
   });
 
-  it("does not blindly retry an ambiguous order timeout", async () => {
+  it("does not send or retry an order after a disabled order request", async () => {
     const mockedFetch = vi.fn<typeof fetch>().mockRejectedValue(new TypeError("fetch failed"));
-    const client = new CompetitionClient(
-      "http://127.0.0.1:3002/api/v1", "fixture-token", new RateLimiter(90), mockedFetch, true,
-    );
-    await expect(client.submitOrder({
-      ticker: "TICK", action: "BUY", quantity: 1, date: "2026-10-29",
-    })).rejects.toThrow("fetch failed");
-    expect(mockedFetch).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not submit orders unless explicitly enabled", async () => {
-    const mockedFetch = vi.fn<typeof fetch>();
     const client = new CompetitionClient(
       "http://127.0.0.1:3002/api/v1", "fixture-token", new RateLimiter(90), mockedFetch,
     );
     await expect(client.submitOrder({
       ticker: "TICK", action: "BUY", quantity: 1, date: "2026-10-29",
-    })).rejects.toThrow("Order submission is disabled");
+    })).rejects.toThrow("locked off");
     expect(mockedFetch).not.toHaveBeenCalled();
   });
 

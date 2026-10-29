@@ -6,7 +6,7 @@ export interface RiskContext {
   activeTickers: ReadonlySet<string>;
   price: number;
   simulatedDate: string;
-  portfolio: PortfolioSnapshot;
+  portfolio: PortfolioSnapshot | null;
   now: number;
   signalKey: string;
 }
@@ -31,6 +31,7 @@ export class RiskManager {
     if (!Number.isFinite(context.price) || context.price <= 0) return deny("Price is invalid.");
     if (!isValidDate(request.date) || request.date !== context.simulatedDate)
       return deny("Simulated date is invalid or stale.");
+    if (!context.portfolio) return deny("No verified authoritative portfolio snapshot is available.");
     const snapshotAge = context.now - context.portfolio.receivedAt;
     if (snapshotAge < 0 || snapshotAge > this.config.portfolioMaxAgeMs)
       return deny("Portfolio snapshot is stale.");

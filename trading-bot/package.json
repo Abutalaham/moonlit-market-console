@@ -4,13 +4,15 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20.6"
+    "node": ">=20.12"
   },
   "scripts": {
     "test": "vitest run --config vitest.config.ts",
     "check": "tsc --project tsconfig.json --noEmit",
     "diagnostics": "tsx src/main.ts --diagnostics",
-    "start": "tsx --env-file=.env src/main.ts"
+    "venue:check": "tsx src/main.ts --venue-check",
+    "bot:dry-run": "tsx src/main.ts --max-events 20 --timeout-seconds 45",
+    "start": "tsx src/main.ts --continuous"
   },
   "dependencies": {
     "kafkajs": "^2.2.4"
