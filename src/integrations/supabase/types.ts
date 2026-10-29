@@ -14,7 +14,273 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bot_runs: {
+        Row: {
+          ended_at: string | null
+          ending_wealth: number | null
+          id: string
+          run_label: string
+          stage: string
+          started_at: string
+          starting_capital: number
+          status: string
+          summary: Json
+        }
+        Insert: {
+          ended_at?: string | null
+          ending_wealth?: number | null
+          id?: string
+          run_label: string
+          stage?: string
+          started_at?: string
+          starting_capital?: number
+          status?: string
+          summary?: Json
+        }
+        Update: {
+          ended_at?: string | null
+          ending_wealth?: number | null
+          id?: string
+          run_label?: string
+          stage?: string
+          started_at?: string
+          starting_capital?: number
+          status?: string
+          summary?: Json
+        }
+        Relationships: []
+      }
+      bot_telemetry: {
+        Row: {
+          engine_status: string
+          error_count: number
+          gateway_status: string
+          heartbeat_age_ms: number | null
+          id: number
+          kafka_status: string
+          last_order_at: string | null
+          latest_market_event: Json | null
+          processing_latency_ms: number | null
+          recorded_at: string
+          run_id: string | null
+          stage: string | null
+        }
+        Insert: {
+          engine_status?: string
+          error_count?: number
+          gateway_status?: string
+          heartbeat_age_ms?: number | null
+          id?: never
+          kafka_status?: string
+          last_order_at?: string | null
+          latest_market_event?: Json | null
+          processing_latency_ms?: number | null
+          recorded_at?: string
+          run_id?: string | null
+          stage?: string | null
+        }
+        Update: {
+          engine_status?: string
+          error_count?: number
+          gateway_status?: string
+          heartbeat_age_ms?: number | null
+          id?: never
+          kafka_status?: string
+          last_order_at?: string | null
+          latest_market_event?: Json | null
+          processing_latency_ms?: number | null
+          recorded_at?: string
+          run_id?: string | null
+          stage?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bot_telemetry_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "bot_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_audit: {
+        Row: {
+          action: string
+          decision_id: number | null
+          execution_details: Json | null
+          execution_price: number | null
+          id: number
+          quantity: number
+          rejection_code: string | null
+          responded_at: string | null
+          run_id: string
+          status: string
+          submitted_at: string
+          ticker: string
+        }
+        Insert: {
+          action: string
+          decision_id?: number | null
+          execution_details?: Json | null
+          execution_price?: number | null
+          id?: never
+          quantity: number
+          rejection_code?: string | null
+          responded_at?: string | null
+          run_id: string
+          status?: string
+          submitted_at: string
+          ticker: string
+        }
+        Update: {
+          action?: string
+          decision_id?: number | null
+          execution_details?: Json | null
+          execution_price?: number | null
+          id?: never
+          quantity?: number
+          rejection_code?: string | null
+          responded_at?: string | null
+          run_id?: string
+          status?: string
+          submitted_at?: string
+          ticker?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_audit_decision_id_fkey"
+            columns: ["decision_id"]
+            isOneToOne: false
+            referencedRelation: "trade_decisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_audit_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "bot_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolio_snapshots: {
+        Row: {
+          available_cash: number
+          holdings_value: number
+          id: number
+          locked_margin: number
+          realized_pnl: number
+          recorded_at: string
+          run_id: string
+          total_wealth: number
+          unrealized_pnl: number
+        }
+        Insert: {
+          available_cash: number
+          holdings_value?: number
+          id?: never
+          locked_margin?: number
+          realized_pnl?: number
+          recorded_at?: string
+          run_id: string
+          total_wealth: number
+          unrealized_pnl?: number
+        }
+        Update: {
+          available_cash?: number
+          holdings_value?: number
+          id?: never
+          locked_margin?: number
+          realized_pnl?: number
+          recorded_at?: string
+          run_id?: string
+          total_wealth?: number
+          unrealized_pnl?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_snapshots_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "bot_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_configs: {
+        Row: {
+          enabled_modules: string[]
+          id: string
+          is_active: boolean
+          name: string
+          params: Json
+          risk_limits: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          enabled_modules?: string[]
+          id?: string
+          is_active?: boolean
+          name: string
+          params?: Json
+          risk_limits?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          enabled_modules?: string[]
+          id?: string
+          is_active?: boolean
+          name?: string
+          params?: Json
+          risk_limits?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      trade_decisions: {
+        Row: {
+          action: string
+          decision_latency_ms: number | null
+          event_at: string
+          id: number
+          indicators: Json
+          reason: string
+          run_id: string
+          ticker: string
+        }
+        Insert: {
+          action: string
+          decision_latency_ms?: number | null
+          event_at: string
+          id?: never
+          indicators?: Json
+          reason: string
+          run_id: string
+          ticker: string
+        }
+        Update: {
+          action?: string
+          decision_latency_ms?: number | null
+          event_at?: string
+          id?: never
+          indicators?: Json
+          reason?: string
+          run_id?: string
+          ticker?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_decisions_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "bot_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
