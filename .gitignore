@@ -30,3 +30,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files are local-only. Existing tracked files must be handled separately.
+.env
+.env.*
+!.env.example
+
+# Local trading bot credentials
+trading-bot/.env
+trading-bot/.env.*
+!trading-bot/.env.example
