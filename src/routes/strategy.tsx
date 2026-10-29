@@ -54,7 +54,7 @@ function Strategy() {
   };
 
   const save = async () => {
-    if (!user || !valid) return;
+    if (!user || !valid) return undefined;
     setSaving(true);
     const { data, error } = await supabase
       .from("strategy_configs")
@@ -73,7 +73,7 @@ function Strategy() {
       .select("updated_at")
       .single();
     setSaving(false);
-    if (error) return toast.error(`Could not save: ${error.message}`);
+    if (error) { toast.error(`Could not save: ${error.message}`); return; }
     setSavedAt(data.updated_at);
     toast.success("Settings saved. The bot picks them up on its next config read.");
   };

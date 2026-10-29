@@ -35,7 +35,7 @@ function bucketLatency(values: number[]) {
   const edges: [string, number][] = [["<10ms", 10], ["10–20", 20], ["20–40", 40], ["40–80", 80], [">80", Infinity]];
   return edges.map(([bucket, hi], i) => ({
     bucket,
-    count: values.filter((v) => v < hi && v >= (i === 0 ? -Infinity : edges[i - 1][1])).length,
+    count: values.filter((v) => v < hi && v >= (i === 0 ? -Infinity : edges[i - 1]![1])).length,
   }));
 }
 

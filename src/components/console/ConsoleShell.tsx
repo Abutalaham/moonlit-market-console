@@ -107,7 +107,7 @@ export function DataGate({ status }: { status: string }) {
     "signed-out": ["Sign in to view connected data", "Run records are private to your team. Sign in, or switch to Demo."],
     "backend-error": ["Backend disconnected", "Could not reach Lovable Cloud. The bot keeps trading locally; this view will recover."],
   };
-  const [t, b] = msg[status] ?? msg.loading;
+  const [t, b] = msg[status] ?? ["Loading…", ""];
   return (
     <div className="glass mx-auto max-w-lg rounded-xl p-8 text-center">
       <p className="display text-xl">{t}</p>
