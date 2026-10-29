@@ -37,13 +37,21 @@ jobs:
       - name: Type-check frontend
         run: bun run typecheck
 
+      - name: Verify public Supabase build variables
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          test -n "$VITE_SUPABASE_URL" || { echo "::error::Set the VITE_SUPABASE_URL Actions variable"; exit 1; }
+          test -n "$VITE_SUPABASE_PUBLISHABLE_KEY" || { echo "::error::Set the VITE_SUPABASE_PUBLISHABLE_KEY Actions variable"; exit 1; }
+
       - name: Build frontend
         run: bun run build
         env:
-          SUPABASE_URL: http://127.0.0.1:54321
-          SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
-          VITE_SUPABASE_URL: http://127.0.0.1:54321
-          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Install bot dependencies from lockfile
         working-directory: trading-bot
